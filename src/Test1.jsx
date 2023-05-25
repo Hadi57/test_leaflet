@@ -1,8 +1,10 @@
-
 import { MapContainer} from 'react-leaflet/MapContainer'
 import { TileLayer } from 'react-leaflet/TileLayer'
 import {Marker} from 'react-leaflet/Marker'
 import {Popup} from 'react-leaflet/Popup'
+
+import { useState } from 'react'
+import {useMapEvents} from 'react-leaflet'
 
 import 'leaflet/dist/leaflet.css'
 
@@ -13,13 +15,14 @@ import iconShadow from 'leaflet/dist/images/marker-shadow.png';
 // const myIcon = new Icon({iconUrl: marker, iconSize: [32,50]}) ;
 
 
-function App() {
+export default function Test1() {
 
 
   
   let DefaultIcon = L.icon({
       iconUrl: marker,
-      shadowUrl: iconShadow
+      shadowUrl: iconShadow,
+      iconAnchor: [12, 41]
   });
   
   L.Marker.prototype.options.icon = DefaultIcon;
@@ -31,13 +34,34 @@ function App() {
       url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
     />
     {/* <Marker position={[51.505, -0.09]} icon={myIcon}> */}
-    <Marker position={[51.505, -0.09]} >
+    {/* <Marker position={[51.505, -0.09]} >
       <Popup>
         A pretty CSS3 popup. <br /> Easily customizable.
       </Popup>
-    </Marker>
+    </Marker> */}
+    <LocationMarker />
   </MapContainer>
   );
 }
 
-export default App;
+
+
+
+function LocationMarker() {
+  const [position, setPosition] = useState(null)
+  const map = useMapEvents({
+    click() {
+      map.locate()
+    },
+    locationfound(e) {
+      setPosition(e.latlng)
+      map.flyTo(e.latlng, map.getZoom())
+    },
+  })
+
+  return position === null ? null : (
+    <Marker position={position}>
+      <Popup>You are here</Popup>
+    </Marker>
+  )
+}
